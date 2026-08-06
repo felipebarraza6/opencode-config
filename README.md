@@ -4,8 +4,6 @@
 
 Esta configuración convierte a OpenCode en un orquestador de flujo de trabajo, no en un simple chatbot que escribe código. La idea es simple: **antes de construir, se planifica; antes de publicar, se verifica y se revisa.**
 
-Además, todos los agentes responden en **español neutro chileno**. Nada de voseo argentino, modismos mexicanos ni tuteo de España.
-
 ---
 
 ## ✨ ¿Qué es esto?
