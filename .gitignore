@@ -1,0 +1,26 @@
+# Credenciales y configuración local
+*.key
+*.pem
+.env
+.env.local
+.env.*.local
+node_modules/
+
+# Logs y caché
+*.log
+.cache/
+logs/
+
+# Backups de configuración
+*.bak
+*.backup
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sistema operativo
+.DS_Store
+Thumbs.db

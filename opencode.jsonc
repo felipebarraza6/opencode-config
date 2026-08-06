@@ -1,0 +1,247 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode-go/kimi-k3",
+  "plugin": [
+    "opencode-worktree",
+    "opencode-notify",
+    "opencode-wakatime",
+    "oh-my-openagent"
+  ],
+  "default_agent": "orchestrator",
+  "skills": {
+    "paths": [
+      "~/.config/opencode/skills"
+    ]
+  },
+  "instructions": [
+    "~/.config/opencode/rules/software-engineering.md"
+  ],
+  "permission": "ask",
+  "agent": {
+    "orchestrator": {
+      "model": "opencode-go/kimi-k3",
+      "mode": "primary",
+      "description": "Analiza, planifica y diseña antes de que cualquier código se toque. No escribe código.",
+      "prompt": "Actúa como Orchestrator de ingeniería de software. Tu trabajo es entender el repositorio, el objetivo de la tarea y producir un plan verificable antes de cualquier implementación. Inspecciona AGENTS.md y README.md, identifica archivos afectados, riesgos y criterios de aceptación. Propón un plan paso a paso, estrategia de tests, decisiones pendientes y plan de rollback. No modifiques archivos ni ejecutes bash destructivo. Pide aclaración si hay ambigüedad relevante.",
+      "steps": 50,
+      "permission": {
+        "read": "allow",
+        "edit": "deny",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "bash": "deny",
+        "task": "allow",
+        "external_directory": "deny",
+        "webfetch": "allow",
+        "websearch": "allow"
+      }
+    },
+    "builder": {
+      "model": "opencode-go/deepseek-v4-flash",
+      "mode": "primary",
+      "description": "Implementa cambios aprobados, agrega tests y ejecuta validaciones locales.",
+      "prompt": "Actúa como Builder. Implementa únicamente el plan aprobado, manteniendo el cambio dentro del alcance. Reutiliza patrones existentes, no inventes APIs ni dependencias, y agrega o actualiza tests. Ejecuta validaciones locales y reporta los comandos y resultados reales. Documenta decisiones, limitaciones y pendientes. Pide aprobación antes de comandos destructivos o cambios en infraestructura/secretos.",
+      "steps": 80,
+      "permission": {
+        "read": "allow",
+        "edit": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "bash": "ask",
+        "task": "allow",
+        "external_directory": "ask",
+        "webfetch": "allow",
+        "websearch": "allow"
+      }
+    },
+    "verifier": {
+      "model": "opencode-go/deepseek-v4-flash",
+      "mode": "primary",
+      "description": "Ejecuta tests, lint, type checking y reporta el resultado sin modificar código.",
+      "prompt": "Actúa como Verifier. Ejecuta el conjunto de validaciones del proyecto en el orden correcto (lint, type check, tests). Lee AGENTS.md para identificar los comandos oficiales. Captura la salida completa, clasifica cada resultado como PASS, FAIL, BLOCKED o NOT_RUN, e identifica archivos o tests fallidos. No modifiques código; solo reporta evidencia.",
+      "steps": 50,
+      "permission": {
+        "read": "allow",
+        "edit": "deny",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "bash": "allow",
+        "task": "allow",
+        "external_directory": "ask",
+        "webfetch": "allow",
+        "websearch": "allow"
+      }
+    },
+    "reviewer": {
+      "model": "omniroute/auto/reasoning",
+      "mode": "primary",
+      "description": "Revisa diffs, criterios de aceptación, seguridad y calidad. No edita en la primera pasada.",
+      "prompt": "Actúa como Reviewer. Revisa el diff completo contra el plan y los criterios de aceptación. Evalúa compatibilidad hacia atrás, contratos de API, validación de entradas, autenticación, autorización, manejo de errores, transacciones, rendimiento, observabilidad, migraciones, secretos expuestos, calidad y tests faltantes. No modifiques código en esta primera pasada. Emite APPROVE, CHANGES_REQUESTED o BLOCK con hallazgos concretos por severidad.",
+      "steps": 60,
+      "permission": {
+        "read": "allow",
+        "edit": "deny",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "bash": "ask",
+        "task": "allow",
+        "external_directory": "ask",
+        "webfetch": "allow",
+        "websearch": "allow"
+      }
+    },
+    "deployer": {
+      "model": "opencode-go/kimi-k2.6",
+      "mode": "primary",
+      "description": "Prepara release, migraciones y despliegue. Nunca deploya a producción sin confirmación humana.",
+      "prompt": "Actúa como Deployer. Prepara el release, migraciones y comandos de despliegue. Verifica que todas las validaciones pasaron y que existe plan de rollback. Describe exactamente qué comandos se ejecutarán y cómo revertirlos. Nunca ejecutes deploy a producción ni modifiques secretos/infraestructura sin confirmación humana explícita.",
+      "steps": 40,
+      "permission": {
+        "read": "allow",
+        "edit": "deny",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "bash": "ask",
+        "task": "allow",
+        "external_directory": "deny",
+        "webfetch": "allow",
+        "websearch": "allow"
+      }
+    }
+  },
+  "provider": {
+    "omniroute": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OmniRoute (268 providers)",
+      "options": {
+        "baseURL": "http://localhost:20128/v1"
+      },
+      "models": {
+        "auto/coding": {
+          "name": "Auto Coding (mejor modelo coding)"
+        },
+        "auto/fast": {
+          "name": "Auto Fast (más rápido)"
+        },
+        "auto/cheap": {
+          "name": "Auto Cheap (más barato)"
+        },
+        "auto/best-free": {
+          "name": "Best Free (mejor gratis)"
+        },
+        "auto/coding:free": {
+          "name": "Coding Free (coding gratis)"
+        },
+        "auto/reasoning": {
+          "name": "Auto Reasoning (razonamiento)"
+        },
+        "auto/vision": {
+          "name": "Auto Vision (multimodal)"
+        },
+        "oc/deepseek-v4-flash-free": {
+          "name": "DS V4 Flash (gratis)"
+        },
+        "oc/qwen3.6-plus-free": {
+          "name": "Qwen 3.6 Plus (gratis)"
+        },
+        "oc/minimax-m3-free": {
+          "name": "MiniMax M3 (gratis)"
+        },
+        "tllm/CLAUDE_4_6_OPUS": {
+          "name": "Claude 4.6 Opus (gratis)"
+        },
+        "tllm/CLAUDE_4_6_SONNET": {
+          "name": "Claude 4.6 Sonnet (gratis)"
+        },
+        "tllm/GPT_5_4": {
+          "name": "GPT-5.4 (gratis)"
+        },
+        "tllm/GPT_5": {
+          "name": "GPT-5 (gratis)"
+        },
+        "tllm/gemini_3_pro": {
+          "name": "Gemini 3 Pro (gratis)"
+        },
+        "tllm/deepseek_v4": {
+          "name": "DeepSeek V4 (gratis)"
+        },
+        "ddgw/gpt-5-mini": {
+          "name": "GPT-5 Mini (DuckDuckGo)"
+        }
+      }
+    },
+    "opencode-go": {
+      "models": {
+        "grok-4.5": {
+          "name": "Grok 4.5 - Análisis pesado (120 req/5h)"
+        },
+        "gpt-5.6-luna": {
+          "name": "GPT 5.6 Luna (2,050 req/5h)"
+        },
+        "glm-5.2": {
+          "name": "GLM-5.2 (880 req/5h)"
+        },
+        "glm-5.1": {
+          "name": "GLM-5.1 (880 req/5h)"
+        },
+        "kimi-k3": {
+          "name": "Kimi K3 - Razonamiento (110 req/5h)"
+        },
+        "kimi-k2.7-code": {
+          "name": "Kimi K2.7 Code - Análisis principal (1,350 req/5h)"
+        },
+        "kimi-k2.6": {
+          "name": "Kimi K2.6 (1,150 req/5h)"
+        },
+        "deepseek-v4-pro": {
+          "name": "DeepSeek V4 Pro - Análisis complejo (3,450 req/5h)"
+        },
+        "deepseek-v4-flash": {
+          "name": "DS V4 Flash - Ejecución rápida (31,650 req/5h)"
+        },
+        "mimo-v2.5": {
+          "name": "MiMo V2.5 - El más barato (30,100 req/5h)"
+        },
+        "mimo-v2.5-pro": {
+          "name": "MiMo V2.5 Pro (3,250 req/5h)"
+        },
+        "minimax-m3": {
+          "name": "MiniMax M3 (3,200 req/5h)"
+        },
+        "minimax-m2.7": {
+          "name": "MiniMax M2.7 (3,400 req/5h)"
+        },
+        "minimax-m2.5": {
+          "name": "MiniMax M2.5"
+        },
+        "qwen3.7-max": {
+          "name": "Qwen 3.7 Max - Razonamiento profundo (950 req/5h)"
+        },
+        "qwen3.7-plus": {
+          "name": "Qwen 3.7 Plus - Ejecución balanceada (4,300 req/5h)"
+        },
+        "qwen3.6-plus": {
+          "name": "Qwen 3.6 Plus (3,300 req/5h)"
+        },
+        "hy3": {
+          "name": "Hy3 (4,300 req/5h)"
+        }
+      }
+    },
+    "groq": {
+      "models": {
+        "llama-3.3-70b-versatile": {
+          "name": "Llama 3.3 70B (Groq)"
+        },
+        "deepseek-r1-distill-llama-70b": {
+          "name": "DeepSeek R1 70B (Groq)"
+        }
+      }
+    }
+  }
+}
