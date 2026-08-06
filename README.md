@@ -4,6 +4,8 @@
 
 Esta configuración convierte a OpenCode en un orquestador de flujo de trabajo, no en un simple chatbot que escribe código. La idea es simple: **antes de construir, se planifica; antes de publicar, se verifica y se revisa.**
 
+Además, todos los agentes responden en **español neutro chileno**. Nada de voseo argentino, modismos mexicanos ni tuteo de España.
+
 ---
 
 ## ✨ ¿Qué es esto?
@@ -22,13 +24,15 @@ Y la IA nunca despliega a producción sin que un humano diga "sí, dale".
 
 ## 🎭 Los cinco agentes
 
-| Agente | Rol | Modelo | Permisos |
-|---|---|---|---|
-| **🧭 Orchestrator** | Analiza el repo, entiende el objetivo y escribe un plan verificable. | `opencode-go/kimi-k3` | Lee y planifica. No edita ni ejecuta bash. |
-| **🔨 Builder** | Implementa el plan aprobado, agrega tests y valida localmente. | `opencode-go/deepseek-v4-flash` | Lee y edita. Pregunta antes de bash. |
-| **✅ Verifier** | Ejecuta tests, lint y type checking. Solo reporta evidencia. | `opencode-go/deepseek-v4-flash` | Lee y ejecuta bash. No edita. |
-| **🔍 Reviewer** | Revisa el diff contra criterios de aceptación, seguridad y calidad. | `omniroute/auto/reasoning` | Revisa. No edita en la primera pasada. |
-| **🚀 Deployer** | Prepara release, migraciones y comandos de deploy. | `opencode-go/kimi-k2.6` | Prepara. Nunca deploya solo. |
+| Agente | Rol | Modelo | Proveedor | Permisos |
+|---|---|---|---|---|
+| **🧭 Orchestrator** | Analiza el repo, entiende el objetivo y escribe un plan verificable. | `kimi-code/k3` | Kimi Code directo | Lee y planifica. No edita ni ejecuta bash. |
+| **🔨 Builder** | Implementa el plan aprobado, agrega tests y valida localmente. | `kimi-code/kimi-for-coding` | Kimi Code directo | Lee y edita. Pregunta antes de bash. |
+| **✅ Verifier** | Ejecuta tests, lint y type checking. Solo reporta evidencia. | `kimi-code/kimi-for-coding` | Kimi Code directo | Lee y ejecuta bash. No edita. |
+| **🔍 Reviewer** | Revisa el diff contra criterios de aceptación, seguridad y calidad. | `kimi-code/k3` | Kimi Code directo | Revisa. No edita en la primera pasada. |
+| **🚀 Deployer** | Prepara release, migraciones y comandos de deploy. | `kimi-code/kimi-for-coding-highspeed` | Kimi Code directo | Prepara. Nunca deploya solo. |
+
+Todos los modelos de Kimi se usan a través del proveedor **Kimi Code directo** (`https://api.kimi.com/coding/v1`), usando tu propia suscripción.
 
 ---
 
@@ -44,17 +48,28 @@ git clone https://github.com/felipebarraza6/opencode-config.git
 
 ```bash
 cp opencode-config/opencode.jsonc ~/.config/opencode/opencode.jsonc
+cp opencode-config/rules/chileno.md ~/.config/opencode/rules/
 cp opencode-config/rules/software-engineering.md ~/.config/opencode/rules/
 cp -r opencode-config/skills/* ~/.config/opencode/skills/
 ```
 
-3. Verifica que todo cargue bien:
+3. **Agrega tu API key de Kimi Code** en el archivo local (nunca en el repo):
+
+```bash
+# Edita ~/.config/opencode/opencode.jsonc
+# Busca la sección "kimi-code" y reemplaza:
+# "apiKey": ""
+# por:
+# "apiKey": "tu-api-key-de-kimi-code"
+```
+
+> 🔒 **Nunca subas tu API key.** El repo público tiene `"apiKey": ""` como placeholder y `.gitignore` ignora archivos sensibles.
+
+4. Verifica que todo cargue bien:
 
 ```bash
 opencode --version
 ```
-
-> ⚠️ **Importante:** esta config usa los proveedores que ya tengo configurados (`omniroute` y `opencode-go`). Si tú no los tienes, deberás ajustar los modelos en `opencode.jsonc`.
 
 ---
 
@@ -91,6 +106,7 @@ opencode-config/
 ├── opencode.jsonc              # Configuración principal de OpenCode
 ├── AGENTS.md                   # Reglas globales para cualquier proyecto
 ├── rules/
+│   ├── chileno.md              # Barrera lingüística: español neutro chileno
 │   └── software-engineering.md # Principios, flujo y restricciones
 ├── skills/
 │   ├── analyze-repository/     # SKILL.md
