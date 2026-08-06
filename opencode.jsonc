@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "opencode-go/kimi-k3",
+  "model": "kimi-code/k3",
   "plugin": [
     "opencode-worktree",
     "opencode-notify",
@@ -20,7 +20,7 @@
   "permission": "ask",
   "agent": {
     "orchestrator": {
-      "model": "opencode-go/kimi-k3",
+      "model": "kimi-code/k3",
       "mode": "primary",
       "description": "Analiza, planifica y diseña antes de que cualquier código se toque. No escribe código.",
       "prompt": "Actúa como Orchestrator de ingeniería de software. Tu trabajo es entender el repositorio, el objetivo de la tarea y producir un plan verificable antes de cualquier implementación. Inspecciona AGENTS.md y README.md, identifica archivos afectados, riesgos y criterios de aceptación. Propón un plan paso a paso, estrategia de tests, decisiones pendientes y plan de rollback. No modifiques archivos ni ejecutes bash destructivo. Pide aclaración si hay ambigüedad relevante.",
@@ -39,7 +39,7 @@
       }
     },
     "builder": {
-      "model": "opencode-go/deepseek-v4-flash",
+      "model": "kimi-code/kimi-for-coding",
       "mode": "primary",
       "description": "Implementa cambios aprobados, agrega tests y ejecuta validaciones locales.",
       "prompt": "Actúa como Builder. Implementa únicamente el plan aprobado, manteniendo el cambio dentro del alcance. Reutiliza patrones existentes, no inventes APIs ni dependencias, y agrega o actualiza tests. Ejecuta validaciones locales y reporta los comandos y resultados reales. Documenta decisiones, limitaciones y pendientes. Pide aprobación antes de comandos destructivos o cambios en infraestructura/secretos.",
@@ -58,7 +58,7 @@
       }
     },
     "verifier": {
-      "model": "opencode-go/deepseek-v4-flash",
+      "model": "kimi-code/kimi-for-coding",
       "mode": "primary",
       "description": "Ejecuta tests, lint, type checking y reporta el resultado sin modificar código.",
       "prompt": "Actúa como Verifier. Ejecuta el conjunto de validaciones del proyecto en el orden correcto (lint, type check, tests). Lee AGENTS.md para identificar los comandos oficiales. Captura la salida completa, clasifica cada resultado como PASS, FAIL, BLOCKED o NOT_RUN, e identifica archivos o tests fallidos. No modifiques código; solo reporta evidencia.",
@@ -77,7 +77,7 @@
       }
     },
     "reviewer": {
-      "model": "omniroute/auto/reasoning",
+      "model": "kimi-code/k3",
       "mode": "primary",
       "description": "Revisa diffs, criterios de aceptación, seguridad y calidad. No edita en la primera pasada.",
       "prompt": "Actúa como Reviewer. Revisa el diff completo contra el plan y los criterios de aceptación. Evalúa compatibilidad hacia atrás, contratos de API, validación de entradas, autenticación, autorización, manejo de errores, transacciones, rendimiento, observabilidad, migraciones, secretos expuestos, calidad y tests faltantes. No modifiques código en esta primera pasada. Emite APPROVE, CHANGES_REQUESTED o BLOCK con hallazgos concretos por severidad.",
@@ -96,7 +96,7 @@
       }
     },
     "deployer": {
-      "model": "opencode-go/kimi-k2.6",
+      "model": "kimi-code/kimi-for-coding-highspeed",
       "mode": "primary",
       "description": "Prepara release, migraciones y despliegue. Nunca deploya a producción sin confirmación humana.",
       "prompt": "Actúa como Deployer. Prepara el release, migraciones y comandos de despliegue. Verifica que todas las validaciones pasaron y que existe plan de rollback. Describe exactamente qué comandos se ejecutarán y cómo revertirlos. Nunca ejecutes deploy a producción ni modifiques secretos/infraestructura sin confirmación humana explícita.",
@@ -116,6 +116,28 @@
     }
   },
   "provider": {
+    "kimi-code": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Kimi Code (suscripción propia)",
+      "options": {
+        "baseURL": "https://api.kimi.com/coding/v1",
+        "apiKey": ""
+      },
+      "models": {
+        "k3": {
+          "name": "Kimi K3 - Razonamiento profundo"
+        },
+        "kimi-for-coding": {
+          "name": "Kimi for Coding - Implementación principal"
+        },
+        "kimi-for-coding-highspeed": {
+          "name": "Kimi for Coding Highspeed - Deploy y tareas rápidas"
+        },
+        "k3-256k": {
+          "name": "Kimi K3 256k - Contexto extendido"
+        }
+      }
+    },
     "omniroute": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "OmniRoute (268 providers)",
