@@ -11,6 +11,8 @@ Configuración portable de OpenCode: agentes, permisos, modelos, reglas y skills
 | `dcp.jsonc` | Configuración de Dynamic Context Pruning |
 | `rules/` | Reglas globales: idioma (español chileno) e ingeniería de software |
 | `skills/` | Skills propias del flujo de trabajo |
+| `AGENTS.md` | Convenciones de trabajo para agentes |
+| `scripts/validate.sh` | Valida la config antes de commitear |
 
 ## Instalación en un equipo nuevo
 
@@ -56,3 +58,12 @@ Optimizado para costo:
 | reviewer | `qwen3.8-flash` | 0.15 / 0.47 |
 
 Cambiar el modelo de una sesión puntual sin tocar el repo: `/models` en la TUI.
+
+## Antes de commitear
+
+```sh
+./scripts/validate.sh
+```
+
+Verifica que el JSONC parsee, que no queden campos V1 deprecated, que `model`
+tenga formato `provider/modelo` y que los agentes y permisos estén completos.
