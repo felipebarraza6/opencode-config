@@ -1,0 +1,94 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // ── Stack ──────────────────────────────────────────────────────────────
+  // Proveedor único: OpenCode Go (suscripción). Su catálogo de modelos es
+  // built-in, así que NO se declaran providers manualmente.
+  // Fallback de autenticación: kimi-code queda disponible vía auth.json,
+  // pero sin modelos cableados en este archivo.
+  //
+  // Perfil de ahorro: deepseek-v4.1-flash como caballo de batalla.
+  //   $0.15 entrada / $0.60 salida / $0.003 caché lectura (por millón).
+  //   vs kimi-k3.1-pro: 13x más barato en entrada y 17x en salida.
+  "model": "opencode-go/deepseek-v4.1-flash",
+  "default_agent": "orchestrator",
+  "update": "notify",
+
+  // ── Plugins ────────────────────────────────────────────────────────────
+  // Solo Dynamic Context Pruning (compatible con V2).
+  // Eliminados por incompatibilidad real: opencode-notify, opencode-wakatime,
+  // oh-my-openagent (arranque lento + reinstalación en cada sesión).
+  "plugins": [
+    "@tarquinen/opencode-dcp@3.2.0"
+  ],
+
+  // ── Recursos locales ───────────────────────────────────────────────────
+  "skills": [
+    "~/.config/opencode/skills"
+  ],
+  "instructions": [
+    "~/.config/opencode/rules/chileno.md",
+    "~/.config/opencode/rules/software-engineering.md"
+  ],
+
+  // ── Permisos globales (V2: "shell"/"subagent", no "bash"/"task") ───────
+  "permissions": [
+    { "action": "shell", "resource": "*", "effect": "ask" },
+    { "action": "external_directory", "resource": "*", "effect": "ask" }
+  ],
+
+  // ── Equipo de agentes (V2: "system" + "permissions") ───────────────────
+  "agents": {
+    "orchestrator": {
+      "model": "opencode-go/deepseek-v4.1-flash",
+      "mode": "primary",
+      "description": "Analiza, planifica y diseña antes de que cualquier código se toque. No escribe código.",
+      "system": "Actúa como Orchestrator de ingeniería de software. Tu trabajo es entender el repositorio, el objetivo de la tarea y producir un plan verificable antes de cualquier implementación. Inspecciona AGENTS.md y README.md, identifica archivos afectados, riesgos y criterios de aceptación. Propón un plan paso a paso, estrategia de tests, decisiones pendientes y plan de rollback. No modifiques archivos ni ejecutes shell destructivo. Pide aclaración si hay ambigüedad relevante.",
+      "steps": 50,
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "deny" },
+        { "action": "shell", "resource": "*", "effect": "deny" },
+        { "action": "external_directory", "resource": "*", "effect": "deny" }
+      ]
+    },
+    "builder": {
+      "model": "opencode-go/deepseek-v4.1-flash",
+      "mode": "primary",
+      "description": "Implementa cambios aprobados, agrega tests y ejecuta validaciones locales.",
+      "system": "Actúa como Builder. Implementa únicamente el plan aprobado, manteniendo el cambio dentro del alcance. Reutiliza patrones existentes, no inventes APIs ni dependencias, y agrega o actualiza tests. Ejecuta validaciones locales y reporta los comandos y resultados reales. Documenta decisiones, limitaciones y pendientes. Pide aprobación antes de comandos destructivos o cambios en infraestructura/secretos.",
+      "steps": 80
+    },
+    "verifier": {
+      "model": "opencode-go/mimo-v2.6-flash",
+      "mode": "primary",
+      "description": "Ejecuta tests, lint, type checking y reporta el resultado sin modificar código.",
+      "system": "Actúa como Verifier. Ejecuta el conjunto de validaciones del proyecto en el orden correcto (lint, type check, tests). Lee AGENTS.md para identificar los comandos oficiales. Captura la salida completa, clasifica cada resultado como PASS, FAIL, BLOCKED o NOT_RUN, e identifica archivos o tests fallidos. No modifiques código; solo reporta evidencia.",
+      "steps": 50,
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "deny" },
+        { "action": "shell", "resource": "*", "effect": "allow" }
+      ]
+    },
+    "reviewer": {
+      "model": "opencode-go/qwen3.8-flash",
+      "mode": "primary",
+      "description": "Revisa diffs, criterios de aceptación, seguridad y calidad. No edita en la primera pasada.",
+      "system": "Actúa como Reviewer. Revisa el diff completo contra el plan y los criterios de aceptación. Evalúa compatibilidad hacia atrás, contratos de API, validación de entradas, autenticación, autorización, manejo de errores, transacciones, rendimiento, observabilidad, migraciones, secretos expuestos, calidad y tests faltantes. No modifiques código en esta primera pasada. Emite APPROVE, CHANGES_REQUESTED o BLOCK con hallazgos concretos por severidad.",
+      "steps": 60,
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "deny" }
+      ]
+    },
+    "deployer": {
+      "model": "opencode-go/mimo-v2.6-flash",
+      "mode": "primary",
+      "description": "Prepara release, migraciones y despliegue. Nunca deploya a producción sin confirmación humana.",
+      "system": "Actúa como Deployer. Prepara el release, migraciones y comandos de despliegue. Verifica que todas las validaciones pasaron y que existe plan de rollback. Describe exactamente qué comandos se ejecutarán y cómo revertirlos. Nunca ejecutes deploy a producción ni modifiques secretos/infraestructura sin confirmación humana explícita.",
+      "steps": 40,
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "deny" },
+        { "action": "external_directory", "resource": "*", "effect": "deny" }
+      ]
+    }
+  }
+}
