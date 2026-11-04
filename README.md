@@ -1,55 +1,61 @@
-# Configuración personal de OpenCode V2
+# ⚙️ Mi configuración de OpenCode
 
-Configuración portable de OpenCode: agentes, permisos, modelos, reglas y skills.
+> 👋 ¡Hola! Bienvenido.
+>
+> Acá dejo mi setup personal de [OpenCode V2](https://opencode.ai): los agentes con los que trabajo, las reglas que me ordenan el día y los skills que me ahorran tiempo. Lo tengo público porque a mí me habría gustado encontrar algo así cuando empecé. Si te sirve, **cópialo, róbalo, méjoralo y hazlo tuyo** 🚀
 
-## Qué incluye
+---
 
-| Archivo | Contenido |
+## ✨ Qué hay adentro
+
+| Archivo | Para qué sirve |
 |---|---|
-| `opencode.jsonc` | Modelo por defecto, agentes (orchestrator, builder, verifier, reviewer, deployer), permisos y plugin DCP |
-| `cli.json` | Preferencias de la TUI (tema, diffs, sidebar) |
-| `dcp.jsonc` | Configuración de Dynamic Context Pruning |
-| `rules/` | Reglas globales: idioma (español chileno) e ingeniería de software |
+| `opencode.jsonc` | Modelo por defecto, permisos y los 5 agentes del equipo |
+| `cli.json` | Tema y preferencias de la terminal |
+| `dcp.jsonc` | Dynamic Context Pruning: menos tokens, misma memoria |
+| `rules/` | Mis reglas globales: idioma y método de ingeniería |
 | `skills/` | Skills propias del flujo de trabajo |
-| `AGENTS.md` | Convenciones de trabajo para agentes |
-| `scripts/validate.sh` | Valida la config antes de commitear |
+| `AGENTS.md` | Convenciones que todo agente debe respetar |
+| `scripts/validate.sh` | Revisa que la config esté sana antes de commitear |
 
-## Instalación en un equipo nuevo
+---
+
+## 🚀 Cómo usarla
 
 ```sh
-# 1. Clonar en la ruta que OpenCode lee por defecto
-git clone <URL-DEL-REPO> ~/.config/opencode
-
-# 2. Autenticarse (las credenciales NO se versionan)
+git clone https://github.com/felipebarraza6/opencode-config.git ~/.config/opencode
 opencode auth login
-
-# 3. Abrir OpenCode
-#    En el primer arranque instala @tarquinen/opencode-dcp@3.2.0 solo.
 opencode
 ```
 
-Si `~/.config/opencode` ya existe:
+Y listo 🎉 El plugin se instala solo en el primer arranque.
+
+Si ya tienes una carpeta ahí:
 
 ```sh
 mv ~/.config/opencode ~/.config/opencode.old
-git clone <URL-DEL-REPO> ~/.config/opencode
+git clone https://github.com/felipebarraza6/opencode-config.git ~/.config/opencode
 ```
 
-## Requisitos
+---
 
-- OpenCode V2
-- `bun` instalado (OpenCode lo usa para instalar plugins)
-- Suscripción `opencode-go` activa
+## 🤖 El equipo
 
-## Qué NO se versiona
+Cinco agentes con roles separados, porque el que escribe el código no debería aprobarlo solo:
 
-- `service.json`: contraseña del servicio local. Se regenera solo.
-- `node_modules/`, `package.json`, `bun.lock`: los recrea OpenCode.
-- Credenciales y sesiones: viven en `~/.local/share/opencode/` y se crean con `opencode auth login`.
+| Agente | Rol |
+|---|---|
+| 🧭 **orchestrator** | Entiende, planifica y define criterios de aceptación |
+| 🔨 **builder** | Implementa el plan aprobado y escribe tests |
+| ✅ **verifier** | Corre lint, tipos y tests. Solo reporta evidencia |
+| 🔍 **reviewer** | Revisa el diff, seguridad y calidad |
+| 🚢 **deployer** | Prepara el release. Nunca despliega sin un humano |
 
-## Perfil de modelos
+---
 
-Optimizado para costo:
+## 💸 Perfil de ahorro
+
+Optimizado para sesiones largas sin que la cuenta llore:
 
 | Agente | Modelo | USD in/out por millón |
 |---|---|---|
@@ -57,13 +63,63 @@ Optimizado para costo:
 | verifier / deployer | `mimo-v2.6-flash` | 0.14 / 0.28 |
 | reviewer | `qwen3.8-flash` | 0.15 / 0.47 |
 
-Cambiar el modelo de una sesión puntual sin tocar el repo: `/models` en la TUI.
+El truco no es solo el precio por token: es la **caché de lectura**. `deepseek-v4.1-flash` cobra $0.003 por millón en caché, contra $0.19 de otros modelos. En conversaciones largas, esa es la diferencia entre gastar poco y gastar de más.
 
-## Antes de commitear
+¿Necesitas más músculo puntual? `/models` en la TUI y listo.
+
+---
+
+## 🗂️ Mis proyectos
+
+Si llegaste hasta acá, pásate a mirar lo que estoy construyendo 👇
+
+### 🌱 La base
+
+| Proyecto | Qué es |
+|---|---|
+| **[Yggdra](https://github.com/felipebarraza6/yggdra-web)** | El backend transversal que sostiene todo lo demás. Portafolio vivo de las apps que corren sobre él. |
+| **[Muninn](https://github.com/felipebarraza6/muninn)** | Agentes de IA especializados. Mi laboratorio de automatización. |
+
+### 🏗️ Apps sobre Yggdra
+
+| Proyecto | Qué es |
+|---|---|
+| **[Nxord](https://github.com/felipebarraza6/nxord)** | 💧 Gestión hídrica con telemetría en tiempo real. React 19 + Vite + Tailwind. |
+| **[FRIG](https://github.com/felipebarraza6/frig)** | 🍽️ Punto de venta gastronómico multi-tenant, white-label. |
+| **[HEIR](https://github.com/felipebarraza6/heir)** | 🩺 Agenda, pagos y agente conversacional para profesionales de la salud. |
+| **[Forja](https://github.com/felipebarraza6/forja)** | 🏋️ Plataforma para personal trainers: venta de servicios y gestión de alumnos. |
+| **[Gungir](https://github.com/felipebarraza6/gungir)** | 🛒 Comercio general: landing, cotizador y panel de administración. |
+
+### 🌾 Territorio y comunidad
+
+| Proyecto | Qué es |
+|---|---|
+| **[Proyecto 90](https://github.com/felipebarraza6/proyecto-90)** | 🎯 Landing, inscripción y panel del desafío de 90 días. |
+| **[nxrd_apr](https://github.com/felipebarraza6/nxrd_apr)** | 🚰 Ciclo del agua potable rural: socio, medidor, lectura, tarifa y cobro. |
+| **[Asociación Laja-Diguillín](https://github.com/felipebarraza6/asociacion-laja-diguillin)** | 🏛️ Sitio institucional de la asociación de municipalidades del territorio de riego. |
+
+---
+
+## 🧪 Antes de commitear
 
 ```sh
 ./scripts/validate.sh
 ```
 
-Verifica que el JSONC parsee, que no queden campos V1 deprecated, que `model`
-tenga formato `provider/modelo` y que los agentes y permisos estén completos.
+Verifica que el JSONC parsee, que no queden campos V1 deprecated y que agentes y permisos estén completos.
+
+---
+
+## 📌 Notas
+
+- Las credenciales **no** se versionan: cada equipo hace su propio `opencode auth login`.
+- `service.json` se regenera solo en cada máquina.
+- Los plugins rotos se fueron de vacaciones permanentes 🏖️
+
+---
+
+<p align="center">
+  Hecho con café, terminal y demasiadas pestañas abiertas ☕💻
+  <br /><br />
+  <b>¿Te sirvió? Déjame una estrella ⭐ y pásate a ver mis proyectos.</b>
+</p>
